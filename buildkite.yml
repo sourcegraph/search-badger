@@ -1,0 +1,17 @@
+
+steps:
+
+  # Run tests
+  - command: |-
+      npm install
+      npm run prettier
+      npm run lint
+      npm run build
+    label: ':typescript:'
+
+  # - wait
+
+  # Build & deploy Docker image
+  # - command: ./deploy.sh
+  #  branches: master
+  #  label: ':rocket:'
