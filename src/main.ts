@@ -87,7 +87,7 @@ app.get(
     '/',
     wrap(async (req, res) => {
         const template = req.query.style || Template.Flat
-        const searchQuery = req.query.query
+        const searchQuery = req.query.q
         const label = req.query.label
         const badgeOptions = await makeSearchBadge(template, searchQuery, label)
         const svg = await makeBadgeSVG(badgeOptions)
