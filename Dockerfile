@@ -10,5 +10,5 @@ COPY . /srv/app
 
 WORKDIR /srv/app
 ENV NODE_ENV $NODE_ENV
-CMD node srv/app/main.js
+CMD node out/main.js
 EXPOSE 80
