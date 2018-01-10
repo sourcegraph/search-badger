@@ -81,6 +81,8 @@ const makeSearchBadge = async (template: Template, searchQuery?: string, label?:
 
 const app = express()
 
+app.set('x-powered-by', false)
+
 app.use(morgan('combined'))
 
 app.get(
