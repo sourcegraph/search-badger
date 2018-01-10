@@ -24,10 +24,6 @@ declare namespace GQL {
         node: Node | null
         repository: IRepository | null
         phabricatorRepo: IPhabricatorRepo | null
-        /**
-    description: A list of all repositories on this site.
-  */
-        repositories: IRepositoryConnection
         symbols: Array<ISymbol>
         currentUser: IUser | null
         isUsernameAvailable: boolean
@@ -38,16 +34,14 @@ declare namespace GQL {
     description: All saved queries configured for the current user, merged from all configurations.
   */
         savedQueries: Array<ISavedQuery>
+        /**
+    description: All repository groups for the current user, merged from all configurations.
+  */
         repoGroups: Array<IRepoGroup>
         org: IOrg
         sharedItem: ISharedItem | null
         packages: Array<IPackage>
         dependents: Array<IDependency>
-        users: IUserConnection | null
-        /**
-    description: List all organizations.
-  */
-        orgs: IOrgConnection
         updateDeploymentConfiguration: IEmptyResponse | null
         /**
     description: The current site.
@@ -55,7 +49,7 @@ declare namespace GQL {
         site: ISite
     }
 
-    type Node = IRepository | ICommit | IUser | IOrg
+    type Node = IRepository | ICommit | IUser | IOrg | IThread
 
     interface INode {
         __typename: 'Node'
@@ -68,6 +62,10 @@ declare namespace GQL {
         uri: string
         description: string
         language: string
+        /**
+    description: Whether the repository is enabled. A disabled repository is only accessible to site admins.
+  */
+        enabled: boolean
         fork: boolean
         starsCount: number | null
         forksCount: number | null
@@ -90,6 +88,10 @@ declare namespace GQL {
     description: Link to another sourcegraph instance location where this repository is located.
   */
         redirectURL: string | null
+        /**
+    description: Whether the viewer has admin privileges on this repository.
+  */
+        viewerCanAdminister: boolean
     }
 
     interface ICommitState {
@@ -272,21 +274,6 @@ This HTML string is already escaped and thus is always safe to render.
         url: string
     }
 
-    /**
-    description: A list of repositories.
-  */
-    interface IRepositoryConnection {
-        __typename: 'RepositoryConnection'
-        /**
-    description: A list of repositories.
-  */
-        nodes: Array<IRepository>
-        /**
-    description: The total count of repositories in the connection.
-  */
-        totalCount: number
-    }
-
     interface ISymbol {
         __typename: 'Symbol'
         repository: IRepository
@@ -301,24 +288,32 @@ This HTML string is already escaped and thus is always safe to render.
     description: The unique ID for the user.
   */
         id: string
+        authID: string
         auth0ID: string
-        sourcegraphID: number | null
+        externalID: string | null
+        sourcegraphID: number
         email: string
         displayName: string | null
-        username: string | null
+        username: string
         avatarURL: string | null
-        createdAt: string | null
+        createdAt: string
         updatedAt: string | null
-        verified: boolean
+        /**
+    description: Whether the user is a site admin.
+  */
+        siteAdmin: boolean
         /**
     description: The latest settings for the user.
   */
         latestSettings: ISettings | null
         orgs: Array<IOrg>
         orgMemberships: Array<IOrgMember>
-        hasSourcegraphUser: boolean
         tags: Array<IUserTag>
         activity: IUserActivity
+        /**
+    description: The user's email addresses.
+  */
+        emails: Array<IUserEmail>
     }
 
     /**
@@ -402,17 +397,43 @@ This HTML string is already escaped and thus is always safe to render.
         createdAt: string
         updatedAt: string
         threads: IThreadConnection
+        /**
+    description: The repository that this refers to, if the repository is available on the server. This is null
+for repositories that only exist for users locally (that they use with the editor) but that
+are not on the server.
+  */
+        repository: IRepository | null
     }
 
+    /**
+    description: A list of threads.
+  */
     interface IThreadConnection {
         __typename: 'ThreadConnection'
+        /**
+    description: A list of threads.
+  */
         nodes: Array<IThread>
+        /**
+    description: The total count of threads in the connection. This total count may be larger
+than the number of nodes in this object when the result is paginated.
+  */
         totalCount: number
     }
 
+    /**
+    description: Thread is a comment thread.
+  */
     interface IThread {
         __typename: 'Thread'
-        id: number
+        /**
+    description: The unique ID.
+  */
+        id: string
+        /**
+    description: The primary key from the database.
+  */
+        databaseID: number
         repo: IOrgRepo
         file: string
         /**
@@ -506,9 +527,19 @@ In Go syntax, userSelection := text[rangeStart:rangeStart+rangeLength]
         textSelectionRangeLength: number
     }
 
+    /**
+    description: Comment is a comment in a thread.
+  */
     interface IComment {
         __typename: 'Comment'
-        id: number
+        /**
+    description: The unique ID.
+  */
+        id: string
+        /**
+    description: The primary key from the database.
+  */
+        databaseID: number
         title: string
         contents: string
         /**
@@ -535,13 +566,42 @@ This HTML string is already escaped and thus is always safe to render.
         name: string
     }
 
+    /**
+    description: UserActivity describes a user's activity on the site.
+  */
     interface IUserActivity {
         __typename: 'UserActivity'
-        id: number
+        /**
+    description: The number of search queries that the user has performed.
+  */
         searchQueries: number
+        /**
+    description: The number of page views that the user has performed.
+  */
         pageViews: number
-        createdAt: string
-        updatedAt: string
+    }
+
+    /**
+    description: A user's email address.
+  */
+    interface IUserEmail {
+        __typename: 'UserEmail'
+        /**
+    description: The email address.
+  */
+        email: string
+        /**
+    description: Whether the email address has been verified by the user.
+  */
+        verified: boolean
+        /**
+    description: Whether the email address is pending verification.
+  */
+        verificationPending: boolean
+        /**
+    description: The user associated with this email address.
+  */
+        user: IUser
     }
 
     /**
@@ -571,6 +631,12 @@ configuration subjects: org 1, org 2, and the user.
         __typename: 'Search'
         results: ISearchResults
         suggestions: Array<SearchSuggestion>
+        /**
+    description: A subset of results (excluding actual search results) which are heavily
+cached and thus quicker to query. Useful for e.g. querying sparkline
+data.
+  */
+        stats: ISearchResultsStats
     }
 
     interface ISearchResults {
@@ -579,6 +645,10 @@ configuration subjects: org 1, org 2, and the user.
         resultCount: number
         approximateResultCount: string
         limitHit: boolean
+        /**
+    description: Integers representing the sparkline for the search results.
+  */
+        sparkline: Array<number>
         /**
     description: Repositories that are busy cloning onto gitserver.
   */
@@ -738,10 +808,15 @@ this is "#NUMBER".
     interface ISearchQuery {
         __typename: 'SearchQuery'
         query: string
-        scopeQuery: string
     }
 
     type SearchSuggestion = IRepository | IFile
+
+    interface ISearchResultsStats {
+        __typename: 'SearchResultsStats'
+        approximateResultCount: string
+        sparkline: Array<number>
+    }
 
     interface ISearchScope {
         __typename: 'SearchScope'
@@ -773,6 +848,7 @@ queries of the same subject).
         index: number
         description: string
         query: ISearchQuery
+        showOnHomepage: boolean
     }
 
     /**
@@ -816,7 +892,7 @@ type.
     interface ISharedItemUser {
         __typename: 'SharedItemUser'
         displayName: string | null
-        username: string | null
+        username: string
         avatarURL: string | null
     }
 
@@ -830,7 +906,8 @@ type.
   */
     interface ISharedItemThread {
         __typename: 'SharedItemThread'
-        id: number
+        id: string
+        databaseID: number
         repo: ISharedItemOrgRepo
         file: string
         branch: string | null
@@ -861,6 +938,10 @@ type.
         __typename: 'SharedItemOrgRepo'
         id: number
         remoteUri: string
+        /**
+    description: See OrgRepo.repository.
+  */
+        repository: IRepository | null
     }
 
     /**
@@ -893,7 +974,8 @@ type.
   */
     interface ISharedItemComment {
         __typename: 'SharedItemComment'
-        id: number
+        id: string
+        databaseID: number
         title: string
         contents: string
         richHTML: string
@@ -936,36 +1018,6 @@ type.
         id: string | null
     }
 
-    /**
-    description: A list of users.
-  */
-    interface IUserConnection {
-        __typename: 'UserConnection'
-        /**
-    description: A list of users.
-  */
-        nodes: Array<IUser>
-        /**
-    description: The total count of users in the connection.
-  */
-        totalCount: number
-    }
-
-    /**
-    description: A list of organizations.
-  */
-    interface IOrgConnection {
-        __typename: 'OrgConnection'
-        /**
-    description: A list of organizations.
-  */
-        nodes: Array<IOrg>
-        /**
-    description: The total count of organizations in the connection.
-  */
-        totalCount: number
-    }
-
     interface IEmptyResponse {
         __typename: 'EmptyResponse'
         alwaysNil: string | null
@@ -980,23 +1032,185 @@ The site is a singleton; the API only ever returns the single global site.
     interface ISite {
         __typename: 'Site'
         /**
-    description: The site's ID.
+    description: The site's opaque GraphQL ID. This is NOT the "site ID" as it is referred to elsewhere;
+use the siteID field for that. (GraphQL node types conventionally have an id field of type
+ID! that globally identifies the node.)
   */
         id: string
         /**
+    description: The site ID.
+  */
+        siteID: string
+        /**
     description: The site's configuration. Only visible to site admins.
   */
-        configuration: string
+        configuration: ISiteConfiguration
         /**
     description: The site's latest site-wide settings (which are the lowest-precedence
 in the configuration cascade for a user).
   */
         latestSettings: ISettings | null
+        /**
+    description: Whether the viewer can reload the site (with the reloadSite mutation).
+  */
+        canReloadSite: boolean
+        /**
+    description: List all repositories.
+  */
+        repositories: IRepositoryConnection
+        /**
+    description: List all users.
+  */
+        users: IUserConnection
+        /**
+    description: List all organizations.
+  */
+        orgs: IOrgConnection
+        /**
+    description: List all threads.
+  */
+        threads: IThreadConnection
+        /**
+    description: The build version of the Sourcegraph Server software that is running on this site (of the form
+NNNNN_YYYY-MM-DD_XXXXX, like 12345_2018-01-01_abcdef).
+  */
+        buildVersion: string
+        /**
+    description: The product version of the Sourcegraph Server software that is running on this site (in semver
+form, like 1.2.3).
+  */
+        productVersion: string
+        /**
+    description: Information about software updates for version of Sourcegraph Server that
+this site is running.
+  */
+        updateCheck: IUpdateCheck
+        /**
+    description: Samples of recent telemetry payloads, visible to the site administrator only.
+  */
+        telemetrySamples: Array<string>
+        /**
+    description: Whether the site needs to be configured to add repositories.
+  */
+        needsRepositoryConfiguration: boolean
+        /**
+    description: Whether the site has code intelligence. This field will be expanded in the future to describe
+more about the code intelligence available (languages supported, etc.). It is subject to
+change without notice.
+  */
+        hasCodeIntelligence: boolean
+    }
+
+    /**
+    description: The configuration for a site.
+  */
+    interface ISiteConfiguration {
+        __typename: 'SiteConfiguration'
+        /**
+    description: The effective configuration JSON. This will lag behind the pendingContents
+if the site configuration was updated but the server has not yet restarted.
+  */
+        effectiveContents: string
+        /**
+    description: The pending configuration JSON, which will become effective after the next
+server restart. This is set if the site configuration has been updated since
+the server started.
+  */
+        pendingContents: string | null
+        /**
+    description: Validation errors on the configuration JSON (pendingContents if it exists, otherwise
+effectiveContents). These are different from the JSON Schema validation errors;
+they are errors from validations that can't be expressed in the JSON Schema.
+  */
+        extraValidationErrors: Array<string>
+        /**
+    description: Whether the viewer can update the site configuration (using the
+updateSiteConfiguration mutation).
+  */
+        canUpdate: boolean
+        /**
+    description: The source of the configuration as a human-readable description,
+referring to either the on-disk file path or the SOURCEGRAPH_CONFIG
+env var.
+  */
+        source: string
+    }
+
+    /**
+    description: A list of repositories.
+  */
+    interface IRepositoryConnection {
+        __typename: 'RepositoryConnection'
+        /**
+    description: A list of repositories.
+  */
+        nodes: Array<IRepository>
+        /**
+    description: The total count of repositories in the connection. This total count may be larger
+than the number of nodes in this object when the result is paginated.
+  */
+        totalCount: number
+    }
+
+    /**
+    description: A list of users.
+  */
+    interface IUserConnection {
+        __typename: 'UserConnection'
+        /**
+    description: A list of users.
+  */
+        nodes: Array<IUser>
+        /**
+    description: The total count of users in the connection. This total count may be larger
+than the number of nodes in this object when the result is paginated.
+  */
+        totalCount: number
+    }
+
+    /**
+    description: A list of organizations.
+  */
+    interface IOrgConnection {
+        __typename: 'OrgConnection'
+        /**
+    description: A list of organizations.
+  */
+        nodes: Array<IOrg>
+        /**
+    description: The total count of organizations in the connection. This total count may be larger
+than the number of nodes in this object when the result is paginated.
+  */
+        totalCount: number
+    }
+
+    /**
+    description: Information about software updates for Sourcegraph Server.
+  */
+    interface IUpdateCheck {
+        __typename: 'UpdateCheck'
+        /**
+    description: Whether an update check is currently in progress.
+  */
+        pending: boolean
+        /**
+    description: When the last update check was completed, or null if no update check has
+been completed (or performed) yet.
+  */
+        checkedAt: string | null
+        /**
+    description: If an error occurred during the last update check, this message describes
+the error.
+  */
+        errorMessage: string | null
+        /**
+    description: If an update is available, the version string of the updated version.
+  */
+        updateVersionAvailable: string | null
     }
 
     interface IMutation {
         __typename: 'Mutation'
-        createUser: IUser
         createThread: IThread
         createThread2: IThread
         updateUser: IUser
@@ -1020,8 +1234,48 @@ given a shared item URL.
         createOrg: IOrg
         updateOrg: IOrg
         updateOrgSettings: ISettings
+        /**
+    description: Deletes an organization. Only site admins may perform this mutation.
+  */
+        deleteOrganization: IEmptyResponse | null
+        /**
+    description: Enables or disables a repository. A disabled repository is only
+accessible to site admins and never appears in search results.
+
+Only site admins may perform this mutation.
+  */
+        setRepositoryEnabled: IEmptyResponse | null
+        /**
+    description: Deletes a repository and all data associated with it, irreversibly.
+
+If the repository was added because it was present in the site configuration (directly,
+or because it originated from a configured code host), then it will be re-added during
+the next sync. If you intend to make the repository inaccessible to users and not searchable,
+use setRepositoryEnabled to disable the repository instead of deleteRepository.
+
+Only site admins may perform this mutation.
+  */
+        deleteRepository: IEmptyResponse | null
+        /**
+    description: Creates a user account for a new user and generates a reset password link that the user
+must visit to sign into the account. Only site admins may perform this mutation.
+  */
+        createUserBySiteAdmin: ICreateUserBySiteAdminResult
+        /**
+    description: Randomize a user's password so that they need to reset it before they can sign in again.
+Only site admins may perform this mutation.
+  */
+        randomizeUserPasswordBySiteAdmin: IRandomizeUserPasswordBySiteAdminResult
+        /**
+    description: Deletes a user account. Only site admins may perform this mutation.
+  */
+        deleteUser: IEmptyResponse | null
         inviteUser: IInviteUserResult | null
-        acceptUserInvite: IOrgInviteStatus
+        /**
+    description: Updates the current user's password. The oldPassword arg must match the user's current password.
+  */
+        updatePassword: IEmptyResponse | null
+        acceptUserInvite: IEmptyResponse | null
         removeUserFromOrg: IEmptyResponse | null
         /**
     description: adds a phabricator repository to the Sourcegraph server.
@@ -1034,6 +1288,24 @@ example uri: "github.com/gorilla/mux"
     description: All mutations that update configuration settings are under this field.
   */
         configurationMutation: IConfigurationMutation | null
+        /**
+    description: Updates the site configuration.
+  */
+        updateSiteConfiguration: IEmptyResponse | null
+        /**
+    description: Sets whether the user with the specified user ID is a site admin.
+
+🚨 SECURITY: Only trusted users should be given site admin permissions.
+Site admins have full access to the server's site configuration and other
+sensitive data, and they can perform destructive actions such as
+restarting the site.
+  */
+        setUserIsSiteAdmin: IEmptyResponse | null
+        /**
+    description: Reloads the site by restarting the server. This is not supported for all deployment
+types. This may cause downtime.
+  */
+        reloadSite: IEmptyResponse | null
     }
 
     /**
@@ -1097,17 +1369,34 @@ In Go syntax, userSelection := text[rangeStart:rangeStart+rangeLength]
         lines?: IThreadLinesInput | null
     }
 
+    /**
+    description: The result for Mutation.createUserBySiteAdmin.
+  */
+    interface ICreateUserBySiteAdminResult {
+        __typename: 'CreateUserBySiteAdminResult'
+        /**
+    description: The reset password URL that the new user must visit to sign into their account.
+  */
+        resetPasswordURL: string
+    }
+
+    /**
+    description: The result for Mutation.randomizeUserPasswordBySiteAdmin.
+  */
+    interface IRandomizeUserPasswordBySiteAdminResult {
+        __typename: 'RandomizeUserPasswordBySiteAdminResult'
+        /**
+    description: The reset password URL that the user must visit to sign into their account again.
+  */
+        resetPasswordURL: string
+    }
+
     interface IInviteUserResult {
         __typename: 'InviteUserResult'
         /**
     description: The URL that the invited user can visit to accept the invitation.
   */
         acceptInviteURL: string
-    }
-
-    interface IOrgInviteStatus {
-        __typename: 'OrgInviteStatus'
-        emailVerified: boolean
     }
 
     type IUserEventEnum = 'PAGEVIEW' | 'SEARCHQUERY'
@@ -1191,7 +1480,7 @@ removed. (This is different from the field's value being the string "null".)
         __typename: 'DeploymentConfiguration'
         email: string | null
         telemetryEnabled: boolean | null
-        appID: string | null
+        siteID: string | null
     }
 
     /**
