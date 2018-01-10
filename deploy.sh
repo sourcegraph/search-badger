@@ -8,6 +8,9 @@ npm install
 # Compile TypeScript
 npm run build
 
+# Remove all devDependencies from node_modules for a slim Docker image
+npm prune --production
+
 # Build image
 VERSION=$(printf "%05d" $BUILDKITE_BUILD_NUMBER)_$(date +%Y-%m-%d)_$(git rev-parse --short HEAD)
 docker build -t us.gcr.io/sourcegraph-dev/search-badger:$VERSION .
