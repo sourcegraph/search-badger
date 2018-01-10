@@ -9,9 +9,9 @@ steps:
       npm run build
     label: ':typescript:'
 
-  # - wait
+  - wait
 
   # Build & deploy Docker image
-  # - command: ./deploy.sh
-  #  branches: master
-  #  label: ':rocket:'
+  - command: ./deploy.sh
+    branches: master
+    label: ':rocket:'
