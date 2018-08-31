@@ -54,7 +54,7 @@ const makeSearchBadge = async (template: Template, searchQuery?: string, label?:
         return {
             text: [label, resp.statusText.toLowerCase()],
             template,
-            colorscheme: ColorScheme.Gray,
+            colorscheme: ColorScheme.Red,
         }
     }
     const { data, errors } = (await resp.json()) as { data?: GQL.IQuery; errors?: GQL.IGraphQLResponseError[] }
@@ -63,7 +63,7 @@ const makeSearchBadge = async (template: Template, searchQuery?: string, label?:
         return {
             text: [label, (errors || []).map(e => e.message).join(', ')],
             template,
-            colorscheme: ColorScheme.Gray,
+            colorscheme: ColorScheme.Red,
         }
     }
     // Build badge text
