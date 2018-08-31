@@ -83,6 +83,7 @@ const makeSearchBadge = async (template: Template, searchQuery?: string, label?:
     if (notices.length > 0) {
         rightText += ' (' + notices.join(', ') + ')'
     }
+    label = ` ${label} ` // needs padding
     return { text: [label, rightText], colorscheme: ColorScheme.Blue, template }
 }
 
