@@ -51,6 +51,8 @@ const makeSearchBadge = async (template: Template, searchQuery?: string, label?:
         body: JSON.stringify({ query: gqlQuery, variables }),
     })
     if (!resp.ok) {
+        console.error(`${resp.status} ${resp.statusText} from GraphQL API`)
+        console.error(await resp.text())
         return {
             text: [label, resp.statusText.toLowerCase()],
             template,
