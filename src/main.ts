@@ -16,8 +16,12 @@ const gqlQuery = gql`
             results {
                 resultCount
                 limitHit
-                cloning
-                missing
+                cloning {
+                    name
+                }
+                missing {
+                    name
+                }
             }
         }
     }
@@ -55,6 +59,7 @@ const makeSearchBadge = async (template: Template, searchQuery?: string, label?:
     }
     const { data, errors } = (await resp.json()) as { data?: GQL.IQuery; errors?: GQL.IGraphQLResponseError[] }
     if (!data || !data.search) {
+        console.error(errors)
         return {
             text: [label, (errors || []).map(e => e.message).join(', ')],
             template,
