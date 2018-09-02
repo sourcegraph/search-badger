@@ -7,6 +7,10 @@
     "enabled": true,
     "schedule": ["on the 1st through 7th day of the month"]
   },
+  "docker": {
+    "enabled": true,
+    "pinDigests": true
+  },
   "updateNotScheduled": true,
   "prCreation": "not-pending",
   "semanticCommits": false,
