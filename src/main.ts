@@ -32,7 +32,15 @@ const makeBadgeSVG = (options: BadgeOptions): Promise<string> =>
         badge(options, (svg, err) => (err ? reject(err) : resolve(svg)))
     })
 
-const makeSearchBadge = async (template: Template, searchQuery?: string, label?: string): Promise<BadgeOptions> => {
+interface MakeSearchBadgeOptions {
+    searchQuery?: string
+    label?: string
+    suffix?: string
+}
+const makeSearchBadge = async (
+    template: Template,
+    { searchQuery, label, suffix }: MakeSearchBadgeOptions
+): Promise<BadgeOptions> => {
     if (!searchQuery) {
         return { text: ['search', 'no query'], template, colorscheme: ColorScheme.Gray }
     }
@@ -73,6 +81,9 @@ const makeSearchBadge = async (template: Template, searchQuery?: string, label?:
     if (data.search.results.limitHit) {
         rightText = '>' + rightText
     }
+    if (suffix) {
+        rightText += ' ' + suffix
+    }
     const notices: string[] = []
     if (data.search.results.missing.length > 0) {
         notices.push(`${data.search.results.missing.length} repos missing`)
@@ -96,10 +107,11 @@ app.use(morgan('combined'))
 app.get(
     '/',
     wrap(async (req, res) => {
-        const template = req.query.style || Template.Flat
-        const searchQuery = req.query.q
-        const label = req.query.label
-        const badgeOptions = await makeSearchBadge(template, searchQuery, label)
+        const template: Template = req.query.style || Template.Flat
+        const searchQuery: string | undefined = req.query.q
+        const label: string | undefined = req.query.label
+        const suffix: string | undefined = req.query.suffix
+        const badgeOptions = await makeSearchBadge(template, { searchQuery, label, suffix })
         const svg = await makeBadgeSVG(badgeOptions)
         res.status(200)
         res.setHeader('Content-Type', 'image/svg+xml')
