@@ -7,10 +7,11 @@ NodeJS microservice for serving Sourcegraph search count badges.
 
 ## Query Parameters
 
-| Name    | Description                                           |
-| ------- | ----------------------------------------------------- |
-| `query` | The search query to execute                           |
-| `label` | The text on the left side (default: the search query) |
+| Name     | Description                                                              |
+| -------- | ------------------------------------------------------------------------ |
+| `query`  | The search query to execute                                              |
+| `label`  | The text on the left side (default: the search query)                    |
+| `suffix` | The suffix on the right side after the number of results (default: none) |
 
 ## Develop
 
