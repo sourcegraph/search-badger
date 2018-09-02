@@ -1,6 +1,6 @@
 # Sourcegraph Search Badger
 
-[![build](https://badge.buildkite.com/6cec350252eacb2fea1dc294885188a2e212d9750165fe97e8.svg)](https://buildkite.com/sourcegraph/search-badger)
+[![build](https://badge.buildkite.com/6cec350252eacb2fea1dc294885188a2e212d9750165fe97e8.svg?branch=master)](https://buildkite.com/sourcegraph/search-badger)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 NodeJS microservice for serving Sourcegraph search count badges.
