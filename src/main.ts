@@ -8,6 +8,7 @@ const badge: typeof _ghBadges = require('gh-badges')
 
 const API_URL = process.env.API_URL || 'https://sourcegraph.com/.api/graphql'
 
+// tslint:disable-next-line:no-unbound-method
 const gql = String.raw
 
 const gqlQuery = gql`
