@@ -1,6 +1,4 @@
-
 steps:
-
   # Run tests
   - command: |-
       npm install
