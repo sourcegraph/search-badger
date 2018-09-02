@@ -1,9 +1,7 @@
-
 steps:
-
   # Run tests
   - command: |-
-      npm install
+      npm ci
       npm run prettier
       npm run lint
       npm run build
