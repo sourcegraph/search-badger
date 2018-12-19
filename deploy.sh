@@ -19,6 +19,9 @@ docker build -t sourcegraph/search-badger:$VERSION .
 gcloud docker -- push sourcegraph/search-badger:$VERSION
 docker tag sourcegraph/search-badger:$VERSION sourcegraph/search-badger:latest
 gcloud docker -- push sourcegraph/search-badger:latest
+docker tag sourcegraph/search-badger:$VERSION sourcegraph/search-badger:insiders
+gcloud docker -- push sourcegraph/search-badger:insiders
+
 
 # Trigger Deploybot (branch is just a unique identifier)
 curl http://deploy-bot.sourcegraph.com/set-branch-version -F "token=$DEPLOY_BOT_TOKEN" -F "branch=search-badger" -F "version=$VERSION" -F "user=$BUILDKITE_BUILD_CREATOR_EMAIL"
