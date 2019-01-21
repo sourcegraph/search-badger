@@ -35,8 +35,12 @@ declare module 'gh-badges' {
           })
 
     export interface BadgeFactoryOptions {
+        /** @deprecated */
         fontPath?: string
+        /** @deprecated */
         fallbackFontPath?: string
+        /** @deprecated */
+        precomputeWidths?: boolean
     }
 
     export class BadgeFactory {
