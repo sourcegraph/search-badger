@@ -1,15 +1,11 @@
 import { wrap } from 'async-middleware'
-import express = require('express')
-import { BadgeOptions, ColorScheme, Template } from 'gh-badges'
-import * as _ghBadges from 'gh-badges'
-import morgan = require('morgan')
+import express from 'express'
+import { BadgeOptions, ColorScheme, Template, BadgeFactory } from 'gh-badges'
+import morgan from 'morgan'
 import fetch from 'node-fetch'
-const badge: typeof _ghBadges = require('gh-badges')
+import gql from 'tagged-template-noop'
 
 const API_URL = process.env.API_URL || 'https://sourcegraph.com/.api/graphql'
-
-// tslint:disable-next-line:no-unbound-method
-const gql = String.raw
 
 const gqlQuery = gql`
     query BadgeSearch($query: String!) {
@@ -28,10 +24,7 @@ const gqlQuery = gql`
     }
 `
 
-const makeBadgeSVG = (options: BadgeOptions): Promise<string> =>
-    new Promise((resolve, reject) => {
-        badge(options, (svg, err) => (err ? reject(err) : resolve(svg)))
-    })
+const badgeFactory = new BadgeFactory()
 
 interface MakeSearchBadgeOptions {
     searchQuery?: string
@@ -113,7 +106,7 @@ app.get(
         const label: string | undefined = req.query.label
         const suffix: string | undefined = req.query.suffix
         const badgeOptions = await makeSearchBadge(template, { searchQuery, label, suffix })
-        const svg = await makeBadgeSVG(badgeOptions)
+        const svg = badgeFactory.create(badgeOptions)
         res.status(200)
         res.setHeader('Content-Type', 'image/svg+xml')
         res.end(svg)
