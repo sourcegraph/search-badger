@@ -1,6 +1,6 @@
 import { wrap } from 'async-middleware'
 import express from 'express'
-import { BadgeOptions, ColorScheme, Template, BadgeFactory } from 'gh-badges'
+import { BadgeFactory, BadgeOptions, ColorScheme, Template } from 'gh-badges'
 import morgan from 'morgan'
 import fetch from 'node-fetch'
 import gql from 'tagged-template-noop'
