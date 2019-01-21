@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . -w",
-    "prettier": "prettier --write --list-different '**/{*.{ts,md,js?(on),yml},*.*.yml}'",
+    "prettier": "prettier --write --list-different '**/*.{ts,md,js?(on),yml}'",
+    "prettier-check": "npm run prettier -- --write=false",
     "lint": "tslint -c tslint.json -p tsconfig.json 'src/**/*.ts' 'types/**/*.d.ts'",
     "graphql": "get-graphql-schema https://sourcegraph.com/.api/graphql -j | gql2ts -o types/graphqlschema.d.ts",
     "start": "node out/main.js"
@@ -27,7 +28,7 @@
     "@types/node-fetch": "2.1.4",
     "get-graphql-schema": "^2.1.1",
     "gql2ts": "^1.8.2",
-    "prettier": "1.14.2",
+    "prettier": "^1.16.0",
     "source-map-support": "^0.5.0",
     "tslint": "^5.12.1",
     "typescript": "^3.2.4"

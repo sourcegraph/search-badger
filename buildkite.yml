@@ -2,7 +2,7 @@ steps:
   # Run tests
   - command: |-
       npm ci
-      npm run prettier
+      npm run prettier-check
       npm run lint
       npm run build
     label: ':typescript:'
