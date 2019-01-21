@@ -9,7 +9,7 @@ NodeJS microservice for serving Sourcegraph search count badges.
 
 | Name     | Description                                                              |
 | -------- | ------------------------------------------------------------------------ |
-| `query`  | The search query to execute                                              |
+| `q`      | The search query to execute                                              |
 | `label`  | The text on the left side (default: the search query)                    |
 | `suffix` | The suffix on the right side after the number of results (default: none) |
 
