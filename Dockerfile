@@ -1,4 +1,4 @@
-FROM node:8-alpine@sha256:cf4ea9156ef964eaf0c4df65da3f4fed7358dbe31149ca105c7684a5858195d8
+FROM node:8-alpine@sha256:e1d58a32a7303b3f95f64fe13f2c6679e42879f02a2b77e06771a023e7706e02
 
 RUN apk add --no-cache \
   gettext \
