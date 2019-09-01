@@ -24,7 +24,7 @@
     "@sourcegraph/tsconfig": "^3.0.0",
     "@sourcegraph/tslint-config": "^12.3.1",
     "@types/express": "4.17.0",
-    "@types/morgan": "1.7.36",
+    "@types/morgan": "1.7.37",
     "@types/node-fetch": "2.5.0",
     "get-graphql-schema": "^2.1.1",
     "gql2ts": "^1.8.2",
