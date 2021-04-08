@@ -20,7 +20,7 @@
     "tagged-template-noop": "^2.1.0"
   },
   "devDependencies": {
-    "@sourcegraph/prettierrc": "^2.2.0",
+    "@sourcegraph/prettierrc": "^3.0.0",
     "@sourcegraph/tsconfig": "^3.0.0",
     "@sourcegraph/tslint-config": "^12.3.1",
     "@types/express": "4.17.0",
