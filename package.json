@@ -16,7 +16,7 @@
     "express": "^4.16.2",
     "gh-badges": "^2.1.0",
     "morgan": "^1.9.1",
-    "node-fetch": "^2.0.0",
+    "node-fetch": "^2.6.1",
     "tagged-template-noop": "^2.1.0"
   },
   "devDependencies": {
