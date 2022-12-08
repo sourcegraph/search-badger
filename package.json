@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "async-middleware": "^1.2.1",
-    "express": "^4.16.2",
+    "express": "^4.17.3",
     "gh-badges": "^2.1.0",
     "morgan": "^1.9.1",
     "node-fetch": "^2.0.0",
